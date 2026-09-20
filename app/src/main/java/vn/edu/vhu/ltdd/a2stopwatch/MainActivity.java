@@ -17,7 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-
+    // Hoan tat thuc nghiem 5 kich ban - MSSV: 231A290127
     private static final String TAG = "A2_231A290127";
 
     // Khóa lưu trạng thái vào Bundle
