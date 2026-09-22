@@ -1,11 +1,14 @@
 package vn.edu.vhu.ltdd.a2stopwatch;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -28,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView tvTime, tvStatus, tvRecreate;
     private Button btnStartPause, btnReset;
+    private CheckBox cbPauseOnStop;
 
     // Trạng thái của đồng hồ
     private boolean running = false;
@@ -60,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         tvRecreate = findViewById(R.id.tvRecreate);
         btnStartPause = findViewById(R.id.btnStartPause);
         btnReset = findViewById(R.id.btnReset);
+        cbPauseOnStop = findViewById(R.id.cbPauseOnStop);
 
         if (savedInstanceState != null) {
             running = savedInstanceState.getBoolean(KEY_RUNNING);
@@ -113,6 +118,12 @@ public class MainActivity extends AppCompatActivity {
         stopTicking();
         updateUi();
         Log.i(TAG, "DAT LAI ve 00:00.0");
+
+        // Logic NC3: Rung nhẹ phản hồi xúc giác (100ms) khi bấm Đặt lại
+        Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        if (vibrator != null && vibrator.hasVibrator()) {
+            vibrator.vibrate(100);
+        }
     }
 
     private void startTicking() {
@@ -132,6 +143,13 @@ public class MainActivity extends AppCompatActivity {
         long giay = (ms % 60000) / 1000;
         long phanMuoi = (ms % 1000) / 100;
         tvTime.setText(String.format(Locale.getDefault(), "%02d:%02d.%d", phut, giay, phanMuoi));
+
+        // Logic NC3: Đổi sang màu đỏ khi đếm vượt quá 60 giây (60.000 ms)
+        if (ms >= 60000) {
+            tvTime.setTextColor(Color.RED);
+        } else {
+            tvTime.setTextColor(Color.BLACK);
+        }
     }
 
     private void updateUi() {
@@ -170,6 +188,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "onStop");
+
+        // Logic NC2: Tự động tạm dừng nếu CheckBox được chọn và đồng hồ đang chạy
+        if (cbPauseOnStop != null && cbPauseOnStop.isChecked() && running) {
+            pauseStopwatch();
+        }
     }
 
     @Override
